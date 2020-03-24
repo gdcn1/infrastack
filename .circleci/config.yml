@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   build:
     docker: 
@@ -6,3 +7,21 @@ jobs:
     steps:
       - checkout
       - run: echo "hello world"
+
+  terraform_lint:
+    docker:
+      - image: wata727/tflint
+    working_directory: ~/terraform
+    steps:
+      - checkout
+      - run: tflint -v
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - terraform_lint:
+          requires:
+            - build
+
