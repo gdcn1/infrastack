@@ -1,5 +1,10 @@
 version: 2.1
 
+references:
+
+terraform_working_directory: &tf_working_directory
+  ~/terraform
+
 jobs:
   build:
     docker: 
@@ -11,10 +16,10 @@ jobs:
   terraform_lint:
     docker:
       - image: wata727/tflint
-    working_directory: ~/terraform
+    working_directory: *tf_working_directory
     steps:
       - checkout
-      - run: tflint -v
+      - run: find . -type f -name \*tf -exec dirname {} \; | sort -u | while read foldername; do tflint $foldername; done
 
 workflows:
   version: 2
