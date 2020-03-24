@@ -2,16 +2,23 @@ version: 2.1
 
 references:
 
+terraform_base_image: &tf_base_image
+  hashicorp/terraform:light
+
 terraform_working_directory: &tf_working_directory
   ~/terraform
 
+terraform_default_config: &tf_default_config
+  docker:
+    - image: *tf_base_image
+  working_directory: *tf_working_directory
+
 jobs:
   build:
-    docker: 
-      - image: circleci/node:4.8.2
+    <<: *tf_default_config
     steps:
       - checkout
-      - run: echo "hello world"
+      - run: find . -type f -name \*tf -exec dirname {} \; | sort -u | while read foldername; do terraform fmt -check=true $foldername; done
 
   terraform_lint:
     docker:
