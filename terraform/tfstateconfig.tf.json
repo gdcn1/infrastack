@@ -1,0 +1,10 @@
+{
+  "variable": {
+    "s3bucket_name": {
+      "default": "terraform-states-goodcoin"
+    },
+    "s3bucket_region": {
+      "default": "eu-west-1"
+    }
+  }
+}
