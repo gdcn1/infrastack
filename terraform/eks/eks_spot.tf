@@ -17,8 +17,8 @@ provider "kubernetes" {
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name = "goodcoin-eks-spot"
-  subnets      = data.terraform_remote_state.vpc.public_subnets
-  vpc_id       = data.terraform_remote_state.vpc.vpc_id
+  subnets      = data.terraform_remote_state.vpc.outputs.public_subnets
+  vpc_id       = data.terraform_remote_state.vpc.outputs.vpc_id
 
   worker_groups_launch_template = [
     {
