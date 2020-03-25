@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-rds
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: k8s-rds
+  template:
+    metadata:
+      labels:
+        name: k8s-rds
+    spec:
+      containers:
+      - image: sorenmat/k8s-rds:latest
+        imagePullPolicy: Always
+        name: k8s-rds
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50m
+          requests:
+            cpu: 50m
+            memory: 50m
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
