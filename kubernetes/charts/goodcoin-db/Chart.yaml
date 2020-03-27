@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Goodcoin Database
+name: goodcoin-db
+version: 0.1.0

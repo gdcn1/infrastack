@@ -1,0 +1,5 @@
+replicaCount: 1
+password: verystrongpass
+backupretentionperiod: 0
+size: 20 # size in GB
+instance_type: "db.t3.micro"
