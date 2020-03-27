@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 for BINNAME in jq git terraform
   do if ! which $BINNAME 1>/dev/null; then

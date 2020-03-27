@@ -1,10 +1,8 @@
 provider "aws" {
-  region  = "eu-west-1"
-  profile = "goodcoin"
+  region = "eu-west-1"
 }
 
 terraform {
   backend "s3" {
-    profile = "goodcoin"
   }
 }

@@ -13,6 +13,7 @@ terraform_default_config: &tf_default_config
     - image: *tf_base_image
   working_directory: *tf_working_directory
 
+
 jobs:
   build:
     <<: *tf_default_config
@@ -28,6 +29,53 @@ jobs:
       - checkout
       - run: find . -type f -name \*tf -exec dirname {} \; | sort -u | while read foldername; do tflint $foldername; done
 
+  terraform_plan:
+    <<: *tf_default_config
+    steps:
+      - checkout
+      - run:
+          name: install jq
+          command: |
+            apk update
+            apk add jq
+      - run:
+          name: terraform plan s3_bucket
+          command: |
+            cd ~/terraform/terraform/s3
+            /bin/sh init.sh
+            terraform plan
+      - run:
+          name: terraform plan route53
+          command: |
+            cd ~/terraform/terraform/route53
+            /bin/sh init.sh
+            terraform plan
+      - run:
+          name: terraform plan vpc
+          command: |
+            cd  ~/terraform/terraform/vpc
+            /bin/sh init.sh
+            terraform plan
+      - run:
+          name: terraform plan eks
+          command: |
+            cd  ~/terraform/terraform/eks
+            /bin/sh init.sh
+            terraform plan
+
+  terraform_apply_route53:
+    <<: *tf_default_config
+    steps:
+      - checkout
+      - run:
+          name: terraform apply route53
+          command: |
+            apk update
+            apk add jq
+            cd terraform/route53
+            /bin/sh init.sh
+            terraform apply --auto-approve
+
 workflows:
   version: 2
   build_and_test:
@@ -36,4 +84,19 @@ workflows:
       - terraform_lint:
           requires:
             - build
-
+      - terraform_plan:
+          requires:
+            - terraform_lint
+      - hold:
+          filters:
+            branches:
+              only: master
+          type: approval
+          requires:
+            - terraform_plan
+      - terraform_apply_route53:
+          filters:
+            branches:
+              only: master
+          requires:
+            - hold
