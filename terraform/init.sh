@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 for BINNAME in jq git terraform
-  do if ! which $BINNAME 1>/dev/null; then
+  do if ! command -v $BINNAME 1>/dev/null; then
     echo "Tool ${BINNAME} was not found."
     exit 1
   fi
