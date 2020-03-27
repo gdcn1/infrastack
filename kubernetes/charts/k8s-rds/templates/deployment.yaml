@@ -23,12 +23,7 @@ spec:
         imagePullPolicy: Always
         name: k8s-rds
         resources:
-          limits:
-            cpu: 50m
-            memory: 50m
-          requests:
-            cpu: 50m
-            memory: 50m
+{{ toYaml .Values.resources | indent 12 }}
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
