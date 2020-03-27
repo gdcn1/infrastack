@@ -1,0 +1,18 @@
+apiVersion: k8s.io/v1
+kind: Database
+metadata:
+  name: {{ template "goodcoin-db.name" . }}
+spec:
+  class: {{ .Values.instance_type }} # type of the db instance
+  engine: postgres # what engine to use postgres, mysql, aurora-postgresql etc.
+  dbname: goodcoindb # name of the initial created database
+  password: # link to database secret
+    name: {{ template "goodcoin-db.fullname" . }}-secret # the name of the secret
+    key: dbpassword # the key in the secret
+  username: goodcoindb # Database username
+  size: {{ .Values.size }} # size in GB
+  backupretentionperiod: {{ .Values.backupretentionperiod }} # days to keep backup, 0 means disable
+  deleteprotection: false # don't delete the database even though the object is deleted in k8s
+  encrypted: true # should the database be encrypted
+  multiaz: false  # multi AZ support
+  storagetype: gp2 # type of the underlying storage
