@@ -54,16 +54,62 @@ jobs:
             /bin/bash init.sh
             terraform plan
 
-  terraform_apply_route53:
+  terraform_apply_infrastructure:
     <<: *default_config
     steps:
       - checkout
+      - run:
+          name: terraform apply s3
+          command: |
+            cd ~/project/terraform/s3
+            /bin/bash init.sh
+            terraform apply --auto-approve
+      - run:
+          name: terraform apply vpc
+          command: |
+            cd ~/project/terraform/vpc
+            /bin/bash init.sh
+            terraform apply --auto-approve
       - run:
           name: terraform apply route53
           command: |
             cd terraform/route53
             /bin/bash init.sh
             terraform apply --auto-approve
+
+  terraform_apply_eks:
+    <<: *default_config
+    steps:
+      - checkout
+      - run:
+          name: terraform apply eks
+          command: |
+            cd ~/project/terraform/eks
+            /bin/bash init.sh
+            terraform apply --auto-approve
+
+  helm_install_charts:
+    <<: *default_config
+    steps:
+      - checkout
+      - run:
+          name: create kubectl config
+          command: |
+            aws eks --region eu-west-1 update-kubeconfig --name goodcoin-eks-spot
+      - run:
+          name: deploy controllers 
+          command: |
+            cd ~/project/kubernetes/charts
+            helm upgrade ingress-nginx ingress-nginx --install --force
+            helm upgrade k8s-rds k8s-rds --install --force
+      - run:
+          name: deploy application
+          command: |
+            cd ~/project/kubernetes/charts
+            kubectl create namespace goodcoin
+            helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --install --force
+            helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --install --force
+            helm upgrade goodcoin-fe goodcoin-fe --namespace goodcoin --install --force
 
 workflows:
   version: 2
@@ -73,16 +119,30 @@ workflows:
       - terraform_plan:
           requires:
             - build
-      - hold:
+      - hold_terraform:
           filters:
             branches:
               only: master
           type: approval
           requires:
             - terraform_plan
-      - terraform_apply_route53:
+      - terraform_apply_infrastructure:
           filters:
             branches:
               only: master
           requires:
-            - hold
+            - hold_terraform
+      - hold_eks:
+          filters:
+            branches:
+              only: master
+          type: approval
+          requires:
+            - terraform_apply_infrastructure
+      - terraform_apply_eks:
+          filters:
+            branches:
+              only: master
+          requires:
+            - hold_eks
+
