@@ -14,5 +14,4 @@ RUN apk add --update --no-cache bash openssh git jq curl py3-pip && \
     mv ./tflint /usr/local/bin/tflint && chmod +x /usr/local/bin/tflint && \
     scversion="stable" && wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv && \
     mv "shellcheck-${scversion}/shellcheck" /usr/local/bin/shellcheck && chmod +x /usr/local/bin/shellcheck && rm -rf  "shellcheck-${scversion}" && \
-    curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install && \
-    rm -rf ./aws && rm awscliv2.zip && chmod +x /usr/local/bin/aws
+    pip3 install awscli --upgrade --user
