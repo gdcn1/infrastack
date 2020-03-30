@@ -103,6 +103,10 @@ jobs:
             helm upgrade ingress-nginx ingress-nginx --install --force
             helm upgrade k8s-rds k8s-rds --install --force
       - run:
+          name: create secret for docker login
+          command: |
+            kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}"
+      - run:
           name: deploy application
           command: |
             cd ~/project/kubernetes/charts
@@ -201,6 +205,12 @@ workflows:
               only: master
           requires:
             - hold_eks
+      - helm_install_charts:
+            filters:
+              branches:
+                only: master
+            requires:
+              - terraform_apply_eks
 
   terminate:
     jobs:
@@ -250,5 +260,3 @@ workflows:
               only: destroy-all
           requires:
             - hold_destroy_infrastructure
-
-
