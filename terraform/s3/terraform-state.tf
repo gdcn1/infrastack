@@ -1,9 +1,9 @@
 module "terraform_states_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "terraform-states-goodcoin"
+  bucket = "terraform-states-good-coin"
   acl    = "private"
-  region = "eu-west-1"
+  region = "us-east-1"
 
   versioning = {
     enabled    = true

@@ -47,12 +47,6 @@ jobs:
             cd  ~/project/terraform/vpc
             /bin/bash init.sh
             terraform plan
-      - run:
-          name: terraform plan eks
-          command: |
-            cd  ~/project/terraform/eks
-            /bin/bash init.sh
-            terraform plan
 
   terraform_apply_infrastructure:
     <<: *default_config
@@ -76,6 +70,17 @@ jobs:
             cd terraform/route53
             /bin/bash init.sh
             terraform apply --auto-approve
+
+  terraform_plan_eks:
+    <<: *default_config
+    steps:
+      - checkout
+      - run:
+          name: terraform plan eks
+          command: |
+            cd  ~/project/terraform/eks
+            /bin/bash init.sh
+            terraform plan
 
   terraform_apply_eks:
     <<: *default_config
@@ -192,6 +197,9 @@ workflows:
               only: master
           requires:
             - hold_terraform
+      - terraform_plan_eks:
+          requires:
+            - terraform_apply_infrastructure
       - hold_eks:
           filters:
             branches:
