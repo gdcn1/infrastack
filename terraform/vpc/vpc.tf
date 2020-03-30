@@ -4,7 +4,7 @@ module "vpc" {
   name = "goodcoin_vpc"
   cidr = "172.31.248.0/21"
 
-  azs            = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  azs            = ["us-east-1a", "us-east-1b", "us-east-1c"]
   public_subnets = ["172.31.252.0/24", "172.31.253.0/24", "172.31.254.0/23"]
 
   enable_nat_gateway = false
