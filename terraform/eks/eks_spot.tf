@@ -23,7 +23,7 @@ module "eks" {
   worker_groups_launch_template = [
     {
       name                    = "spot-1"
-      override_instance_types = ["t3.micro", "m3.medium"]
+      override_instance_types = ["t3.micro", "t3a.small", "t3.small", "t3a.medium", "t3.medium"]
       spot_instance_pools     = 2
       asg_max_size            = 2
       asg_desired_capacity    = 2
