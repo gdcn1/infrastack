@@ -110,13 +110,13 @@ jobs:
       - run:
           name: create secret for docker login
           command: |
-            kubectl delete secret regcred --ignore-not-found=true
-            kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}"
+            kubectl delete secret regcred --ignore-not-found=true --namespace goodcoin
+            kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}" --docker-email="mkostrikin+goodcoin@gmail.com" --namespace goodcoin
       - run:
           name: deploy application
           command: |
             cd ~/project/kubernetes/charts
-            test [ ! kubectl get ns goodcoin ] && kubectl create namespace goodcoin
+            if [[ ! kubectl get ns goodcoin ]];then kubectl create namespace goodcoin;fi
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --install --force
             helm upgrade goodcoin-fe goodcoin-fe --namespace goodcoin --install --force
