@@ -1,3 +1,12 @@
+variable "map_users" {
+  default = [
+    {
+      userarn  = "arn:aws:iam::671114993430:user/afogel@setronica.com"
+      username = "afogel@setronica.com"
+      groups   = ["system:masters"]
+    }
+  ]
+}
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
@@ -24,9 +33,12 @@ module "eks" {
     {
       name                 = "worker-group"
       instance_type        = "t3.micro"
-      asg_desired_capacity = 2
+      asg_desired_capacity = 3
+      asg_min_size         = 3
+      asg_max_size         = 3
     }
   ]
+  map_users = var.map_users
 }
 
 output "cluster_endpoint" {

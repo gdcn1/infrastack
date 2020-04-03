@@ -35,13 +35,15 @@ spec:
               containerPort: 80
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            tcpSocket:
+              port: 80
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            tcpSocket:
+              port: 80
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       imagePullSecrets:
