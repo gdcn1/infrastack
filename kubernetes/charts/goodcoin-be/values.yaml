@@ -32,3 +32,9 @@ resources:
   requests:
     cpu: 0.1
     memory: 256Mi
+
+database:
+  host: goodcoin-db
+  scheme: goodcoindb
+  user: goodcoindb
+  port: 5432
