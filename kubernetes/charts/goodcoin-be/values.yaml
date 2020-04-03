@@ -32,9 +32,3 @@ resources:
   requests:
     cpu: 1000m
     memory: 256Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
