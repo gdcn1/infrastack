@@ -110,12 +110,13 @@ jobs:
       - run:
           name: create secret for docker login
           command: |
+            kubectl delete secret regcred --ignore-not-found=true
             kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}"
       - run:
           name: deploy application
           command: |
             cd ~/project/kubernetes/charts
-            kubectl create namespace goodcoin
+            test [ ! kubectl get ns goodcoin ] && kubectl create namespace goodcoin
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --install --force
             helm upgrade goodcoin-fe goodcoin-fe --namespace goodcoin --install --force
@@ -127,20 +128,20 @@ jobs:
       - run:
           name: create kubectl config
           command: |
-            aws eks --region eu-west-1 update-kubeconfig --name goodcoin-eks-spot
+            aws eks --region us-east-1 update-kubeconfig --name goodcoin-eks-spot
       - run:
           name: destroy application
           command: |
             cd ~/project/kubernetes/charts
-            helm delete --purge goodcoin-db --namespace goodcoin
-            helm delete --purge goodcoin-be --namespace goodcoin
-            helm delete --purge goodcoin-fe --namespace goodcoin
+            helm delete goodcoin-db --namespace goodcoin
+            helm delete goodcoin-be --namespace goodcoin
+            helm delete goodcoin-fe --namespace goodcoin
       - run:
           name: destroy controllers
           command: |
             cd ~/project/kubernetes/charts
-            helm delete --purge ingress-nginx
-            helm delete --purge k8s-rds
+            helm delete ingress-nginx
+            helm delete k8s-rds
 
   terraform_destroy_eks:
     <<: *default_config
