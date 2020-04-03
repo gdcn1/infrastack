@@ -116,7 +116,7 @@ jobs:
           name: deploy application
           command: |
             cd ~/project/kubernetes/charts
-            if [[ ! kubectl get ns goodcoin ]];then kubectl create namespace goodcoin;fi
+            if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --install --force
             helm upgrade goodcoin-fe goodcoin-fe --namespace goodcoin --install --force
