@@ -29,15 +29,18 @@ spec:
             - name: PORT
               value: "80"
             - name: DB_USER
-              value: "goodcoin"
+              value: "{{ .Values.database.user }}"
             - name: DB_HOST
-              value: "goodcoindb"
+              value: "{{ .Values.database.host }}"
             - name: DB_SCHEME
-              value: "goodcoin"
+              value: "{{ .Values.database.scheme }}"
             - name: DB_PASSWORD
-              value: "verystrongpass"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "goodcoin-be.fullname" . }}-secret
+                  key: dbpassword
             - name: DB_PORT
-              value: "5432"
+              value: "{{ .Values.database.port }}"
             - name: FRONT_URL
               value: "http://good-coin.org"
           ports:
