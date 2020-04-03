@@ -5,11 +5,6 @@ metadata:
   namespace: default
 spec:
   replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
-    type: RollingUpdate
   selector:
     matchLabels:
       name: k8s-rds
@@ -20,11 +15,17 @@ spec:
     spec:
       containers:
       - image: sorenmat/k8s-rds:latest
+        env:
+        - name: AWS_REGION
+          value: {{ .Values.aws_region }}
+        - name: AWS_ACCESS_KEY_ID
+          value: {{ .Values.aws_access_key_id }}
+        - name: AWS_SECRET_ACCESS_KEY
+          value: {{ .Values.aws_secret_access_key }}
         imagePullPolicy: Always
         name: k8s-rds
-        resources:
-{{ toYaml .Values.resources | indent 12 }}
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
+      serviceAccountName: k8s-rds-operator
