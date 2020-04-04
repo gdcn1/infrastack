@@ -62,15 +62,18 @@ module "eks" {
   subnets      = data.terraform_remote_state.vpc.outputs.public_subnets
   vpc_id       = data.terraform_remote_state.vpc.outputs.vpc_id
 
-  worker_groups = [
+  worker_groups_launch_template = [
     {
-      name                 = "worker-group"
-      instance_type        = "t3.micro"
-      asg_desired_capacity = 4
-      asg_min_size         = 4
-      asg_max_size         = 4
-    }
+      name                    = "eks-spot-1"
+      override_instance_types = ["t3.micro", "t3.small", "t3.medium"]
+      spot_instance_pools     = 2
+      asg_max_size            = 4
+      asg_desired_capacity    = 4
+      kubelet_extra_args      = "--node-labels=kubernetes.io/lifecycle=spot"
+      public_ip               = true
+    },
   ]
+
   map_users = var.map_users
 
   workers_additional_policies = [aws_iam_policy.route53_policy.arn]
