@@ -106,7 +106,7 @@ jobs:
           command: |
             cd ~/project/kubernetes/charts
             helm repo add stable https://kubernetes-charts.storage.googleapis.com
-            helm upgrade ingress-nginx stable/nginx-ingress --set rbac.create=true --install --force
+            helm upgrade ingress-nginx stable/nginx-ingress --set rbac.create=true --set controller.publishService.enabled=true --install --force
             helm upgrade external-dns stable/external-dns --install --force
             helm upgrade k8s-rds k8s-rds --set aws_region=$AWS_DEFAULT_REGION --set aws_access_key_id=$AWS_ACCESS_KEY_ID --set aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --install --force
       - run:
