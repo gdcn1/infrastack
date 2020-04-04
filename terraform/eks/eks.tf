@@ -7,12 +7,45 @@ variable "map_users" {
     }
   ]
 }
+
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
+}
+
+resource "aws_iam_policy" "route53_policy" {
+  name        = "route53_police"
+  description = "Policy for external-dns chart"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets"
+      ],
+      "Resource": [
+        "arn:aws:route53:::hostedzone/${data.terraform_remote_state.route53.outputs.route53_zone_id}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ListHostedZones",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+EOF
 }
 
 provider "kubernetes" {
@@ -33,12 +66,14 @@ module "eks" {
     {
       name                 = "worker-group"
       instance_type        = "t3.micro"
-      asg_desired_capacity = 3
-      asg_min_size         = 3
-      asg_max_size         = 3
+      asg_desired_capacity = 4
+      asg_min_size         = 4
+      asg_max_size         = 4
     }
   ]
   map_users = var.map_users
+
+  workers_additional_policies = [aws_iam_policy.route53_policy.arn]
 }
 
 output "cluster_endpoint" {

@@ -105,17 +105,21 @@ jobs:
           name: deploy controllers 
           command: |
             cd ~/project/kubernetes/charts
-            helm upgrade ingress-nginx ingress-nginx --install --force
+            helm repo add stable https://kubernetes-charts.storage.googleapis.com
+            helm upgrade ingress-nginx stable/nginx-ingress --set rbac.create=true --install --force
+            helm upgrade external-dns stable/external-dns --install --force
             helm upgrade k8s-rds k8s-rds --set aws_region=$AWS_DEFAULT_REGION --set aws_access_key_id=$AWS_ACCESS_KEY_ID --set aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --install --force
       - run:
           name: create secret for docker login
           command: |
+            if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             kubectl delete secret regcred --ignore-not-found=true --namespace goodcoin
             kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}" --docker-email="mkostrikin+goodcoin@gmail.com" --namespace goodcoin
       - run:
           name: deploy application
           command: |
             cd ~/project/kubernetes/charts
+            while ! kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx;do echo "waiting for ingress-nginx to be created";sleep 10;done
             if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --set password="${POSTGRESS_PASSWORD}" --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --set dbpassword="${POSTGRESS_PASSWORD}" --install --force
