@@ -1,8 +1,8 @@
 variable "map_users" {
   default = [
     {
-      userarn  = "arn:aws:iam::671114993430:user/afogel@setronica.com"
-      username = "afogel@setronica.com"
+      userarn  = "arn:aws:iam::671114993430:user/circleci"
+      username = "circleci"
       groups   = ["system:masters"]
     }
   ]
