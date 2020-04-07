@@ -114,7 +114,7 @@ jobs:
           command: |
             if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             kubectl delete secret regcred --ignore-not-found=true --namespace goodcoin
-            kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}" --docker-email="mkostrikin+goodcoin@gmail.com" --namespace goodcoin
+            kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}" --namespace goodcoin
       - run:
           name: deploy application
           command: |
