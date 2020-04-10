@@ -120,7 +120,7 @@ jobs:
           command: |
             cd ~/project/kubernetes/charts
             while ! kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx;do echo "waiting for ingress-nginx to be created";sleep 10;done
-            while ! kubectl get pods --all-namespaces -l name=k8s-rds; do echo "waiting for rds controller to be created"; sleep 10;done
+            while ! kubectl get pods --all-namespaces -l name=k8s-rds --field-selector=status.phase=Running; do echo "waiting for rds controller to be created"; sleep 10;done
             if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --set password="${POSTGRESS_PASSWORD}" --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --set dbpassword="${POSTGRESS_PASSWORD}" --install --force
