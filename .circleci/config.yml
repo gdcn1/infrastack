@@ -118,6 +118,7 @@ jobs:
       - run:
           name: deploy application
           command: |
+            sleep 60
             cd ~/project/kubernetes/charts
             while ! kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx;do echo "waiting for ingress-nginx to be created";sleep 10;done
             while ! kubectl get pods --all-namespaces -l name=k8s-rds --field-selector=status.phase=Running; do echo "waiting for rds controller to be created"; sleep 10;done
