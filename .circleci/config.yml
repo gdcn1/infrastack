@@ -159,29 +159,6 @@ jobs:
             /bin/bash init.sh
             terraform destroy --auto-approve
 
-  terraform_destroy_infrastructure:
-    <<: *default_config
-    steps:
-      - checkout
-      - run:
-          name: terraform destroy s3
-          command: |
-            cd ~/project/terraform/s3
-            /bin/bash init.sh
-            terraform destroy --auto-approve
-      - run:
-          name: terraform destroy vpc
-          command: |
-            cd ~/project/terraform/vpc
-            /bin/bash init.sh
-            terraform destroy --auto-approve
-      - run:
-          name: terraform destroy route53
-          command: |
-            cd terraform/route53
-            /bin/bash init.sh
-            terraform destroy --auto-approve
-
 workflows:
   version: 2
   build_and_test:
@@ -257,20 +234,3 @@ workflows:
                 - destroy-all
           requires:
             - helm_destroy_charts
-      - hold_destroy_infrastructure:
-          filters:
-            branches:
-              only: master
-            tags:
-              only: destroy-all
-          type: approval
-          requires:
-            - terraform_destroy_eks
-      - terraform_destroy_infrastructure:
-          filters:
-            branches:
-              only: master
-            tags:
-              only: destroy-all
-          requires:
-            - hold_destroy_infrastructure
