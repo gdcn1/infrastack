@@ -93,7 +93,7 @@ jobs:
             /bin/bash init.sh
             terraform apply --auto-approve
 
-  helm_install_charts:
+  helm_install_controllers:
     <<: *default_config
     steps:
       - checkout
@@ -115,19 +115,27 @@ jobs:
             if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             kubectl delete secret regcred --ignore-not-found=true --namespace goodcoin
             kubectl create secret docker-registry regcred --docker-server=$DOCKER_SERVER --docker-username=$DOCKER_USERNAME --docker-password="${DOCKER_PASSWORD}" --namespace goodcoin
+
+  helm_install_application:
+    <<: *default_config
+    steps:
+      - checkout
+      - run:
+          name: create kubectl config
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name goodcoin-eks-spot
       - run:
           name: deploy application
           command: |
-            sleep 60
             cd ~/project/kubernetes/charts
             while ! kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx;do echo "waiting for ingress-nginx to be created";sleep 10;done
-            while ! kubectl get pods --all-namespaces -l name=k8s-rds --field-selector=status.phase=Running; do echo "waiting for rds controller to be created"; sleep 10;done
+            while ! kubectl get crd databases.k8s.io; do echo "waiting for rds controller to be created"; sleep 10;done
             if ! kubectl get ns goodcoin; then kubectl create namespace goodcoin; fi
             helm upgrade goodcoin-db goodcoin-db --namespace goodcoin --set password="${POSTGRESS_PASSWORD}" --install --force
             helm upgrade goodcoin-be goodcoin-be --namespace goodcoin --set dbpassword="${POSTGRESS_PASSWORD}" --install --force
             helm upgrade goodcoin-fe goodcoin-fe --namespace goodcoin --install --force
 
-  helm_destroy_charts:
+  helm_destroy_application:
     <<: *default_config
     steps:
       - checkout
@@ -142,6 +150,15 @@ jobs:
             helm delete goodcoin-db --namespace goodcoin
             helm delete goodcoin-be --namespace goodcoin
             helm delete goodcoin-fe --namespace goodcoin
+
+  helm_destroy_controllers:
+    <<: *default_config
+    steps:
+      - checkout
+      - run:
+          name: create kubectl config
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name goodcoin-eks-spot
       - run:
           name: destroy controllers
           command: |
@@ -197,12 +214,18 @@ workflows:
               only: master
           requires:
             - hold_eks
-      - helm_install_charts:
+      - helm_install_controllers:
             filters:
               branches:
                 only: master
             requires:
               - terraform_apply_eks
+      - helm_install_application:
+            filters:
+              branches:
+                only: master
+            requires:
+              - helm_install_controllers
 
   terminate:
     jobs:
@@ -215,7 +238,7 @@ workflows:
                 - destroy-eks
                 - destroy-all
           type: approval
-      - helm_destroy_charts:
+      - helm_destroy_application:
           filters:
             branches:
               only: master
@@ -225,6 +248,16 @@ workflows:
                 - destroy-all
           requires:
             - hold_destroy_eks
+      - helm_destroy_controllers:
+          filters:
+            branches:
+              only: master
+            tags:
+              only:
+                - destroy-eks
+                - destroy-all
+          requires:
+            - helm_destroy_application
       - terraform_destroy_eks:
           filters:
             branches:
@@ -234,4 +267,4 @@ workflows:
                 - destroy-eks
                 - destroy-all
           requires:
-            - helm_destroy_charts
+            - helm_destroy_controllers
