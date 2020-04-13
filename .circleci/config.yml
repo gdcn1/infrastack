@@ -190,35 +190,35 @@ workflows:
       - terraform_plan:
           requires:
             - build
-      - hold_terraform:
-          filters:
-            branches:
-              only: master
-          type: approval
-          requires:
-            - terraform_plan
+#      - hold_terraform:
+#          filters:
+#            branches:
+#              only: master
+#         type: approval
+#         requires:
+#            - terraform_plan
       - terraform_apply_infrastructure:
           filters:
             branches:
               only: master
           requires:
-            - hold_terraform
+            - terraform_plan
       - terraform_plan_eks:
           requires:
             - terraform_apply_infrastructure
-      - hold_eks:
-          filters:
-            branches:
-              only: master
-          type: approval
-          requires:
-            - terraform_apply_infrastructure
+#      - hold_eks:
+#          filters:
+#            branches:
+#              only: master
+#          type: approval
+#          requires:
+#            - terraform_apply_infrastructure
       - terraform_apply_eks:
           filters:
             branches:
               only: master
           requires:
-            - hold_eks
+            - terraform_plan_eks
       - helm_install_charts:
             filters:
               branches:
