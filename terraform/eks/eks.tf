@@ -69,7 +69,7 @@ module "eks" {
       spot_instance_pools     = 2
       asg_max_size            = 4
       asg_desired_capacity    = 4
-      kubelet_extra_args      = "--node-labels=kubernetes.io/lifecycle=spot"
+      kubelet_extra_args      = "--node-labels=node.kubernetes.io/lifecycle=spot"
       public_ip               = true
     },
   ]
